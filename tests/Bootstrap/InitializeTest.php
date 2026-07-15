@@ -16,7 +16,7 @@ final class InitializeTest extends TestCase
         $this->assertTrue(defined('DIR_BASE'));
         $this->assertTrue(defined('DIR_BASE_LOGS'));
         $this->assertTrue(defined('AUTH_SALT'));
-        $this->assertTrue(defined('RESORUCES_URL'));
+        $this->assertTrue(defined('BUSINESS_NAME'));
     }
 
     #[RunInSeparateProcess]

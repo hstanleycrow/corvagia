@@ -5,7 +5,6 @@ declare(strict_types=1);
 $debug = false;
 $useDataTablesResources = false;
 
-define("RESORUCES_URL", $_ENV['RESORUCES_URL']);
 define('AUTH_SALT', $_ENV['AUTH_SALT']);
 define('BUSINESS_NAME', $_ENV['BUSINESS_NAME']);
 

@@ -15,7 +15,6 @@ class Initialize
     private const REQUIRED_ENV = [
         'ENVIRONMENT',
         'AUTH_SALT',
-        'RESORUCES_URL',
         'BUSINESS_NAME',
         'REPORT_ERROR_EMAIL',
         'DATABASE_HOST',

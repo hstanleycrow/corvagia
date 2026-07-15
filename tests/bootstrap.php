@@ -10,7 +10,6 @@ $_ENV = array_merge($_ENV, [
     'ENVIRONMENT'       => 'testing',
     'AUTH_SALT'         => 'test-salt',
     'BUSINESS_NAME'     => 'Corvagia',
-    'RESORUCES_URL'     => 'http://localhost/resources/',
     'BASE_URL'          => 'http://localhost/',
     'REPORT_ERROR_EMAIL' => 'test@example.com',
     'JWT_SECRET'        => 'test-jwt-secret-that-is-at-least-32-bytes-long',
@@ -27,5 +26,5 @@ $_ENV = array_merge($_ENV, [
     'DATABASE_CHARSET'  => "SET NAMES 'utf8mb4' COLLATE utf8mb4_unicode_ci",
 ]);
 
-// Defines framework constants (AUTH_SALT, DIR_BASE, DIR_BASE_LOGS, RESORUCES_URL...).
+// Defines framework constants (AUTH_SALT, BUSINESS_NAME, DIR_BASE, DIR_BASE_LOGS...).
 require __DIR__ . '/../config/App.php';

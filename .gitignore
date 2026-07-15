@@ -2,3 +2,4 @@ vendor
 .env
 logs/*.*
 .phpunit.cache
+prepros.config

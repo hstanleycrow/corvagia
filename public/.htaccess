@@ -16,9 +16,6 @@ RewriteCond %{REQUEST_URI} \.png$
 
 RewriteRule ^ - [L]
 
-# Sirve archivos estáticos desde la carpeta de recursos
-RewriteRule ^resources/(.*)$ /resources/$1 [L]
-
 # Las reglas existentes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

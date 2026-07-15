@@ -6,9 +6,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?= $this->e($title ?? BUSINESS_NAME) ?></title>
 
-	<link rel="stylesheet" href="<?= RESORUCES_URL; ?>bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" href="<?= RESORUCES_URL; ?>sweetalert2/sweetalert2.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous">
+	<!-- Vendor assets are pinned CDN builds with SRI. To self-host instead, drop the
+	     files under public/ and swap these four tags (see README). -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+		integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css"
+		integrity="sha384-e9JoBUb50niLuTodlxX3NLZZfrt9fQkX5bihGXOGWD/7QFJoXEH37S2df8UA2ehO" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+		integrity="sha384-blOohCVdhjmtROpu8+CfTnUWham9nkX7P7OZQMst+RUnhtoY/9qemFAkIKOYxDI3" crossorigin="anonymous">
 	<?php if (!empty($useDataTablesResources)) : ?>
 		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" />
@@ -37,9 +42,12 @@
 		<?= $this->section('content'); ?>
 	</main>
 
-	<script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
-	<script src="<?= RESORUCES_URL; ?>bootstrap/js/bootstrap.bundle.min.js"></script>
-	<script src="<?= RESORUCES_URL; ?>sweetalert2/sweetalert2.all.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js"
+		integrity="sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"
+		integrity="sha384-mdoL/5UxiiM5ctOnxLuxKDJy3T8r0cDATSr/QEK/m5xMEgwzfimGt2OK0hjqJp9S" crossorigin="anonymous"></script>
 	<?php if (!empty($useDataTablesResources)) : ?>
 		<?= $datatable->autoLoadJsResources(); ?>
 		<?= $datatable->autoLoadDatatableJS(); ?>
