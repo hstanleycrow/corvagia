@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Todo el enrutamiento se maneja en public/.htaccess → public/index.php → routes/web.php
+#
+# Para agregar una ruta pública por slug en el futuro:
+#   1. Agregar en routes/web.php:
+#      Route::get('/[a:slug]', 'Public/PageController#show', 'public.page');
+#   2. Crear app/Controllers/Public/PageController.php
+#   3. El public/.htaccess ya reescribe cualquier URI a index.php automáticamente.
+
