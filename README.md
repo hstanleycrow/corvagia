@@ -2,11 +2,9 @@ English | [Español](README.es.md)
 
 # Corvagia
 
-A small PHP MVC + REST skeleton. Clone it to start a new project with routing,
-views, a JSON API (JWT auth), and a thin database layer already wired together.
-
-> Status: work in progress. The docs are partial — enough to spin up a test
-> project. Expect changes before the first tagged release.
+A small PHP MVC + REST skeleton. Use `composer create-project` to start a new
+project with routing, views, an admin panel, a JSON API (JWT auth), and a thin
+database layer already wired together.
 
 ## What's inside
 
@@ -18,21 +16,24 @@ views, a JSON API (JWT auth), and a thin database layer already wired together.
 - **HTTP request/response** from [Symfony HttpFoundation](https://symfony.com/doc/current/components/http_foundation.html).
 - **Basic migrations**, a data factory, and an admin seeder.
 - **PHPUnit** suite (routing, middleware, bootstrap, DB integration, API).
+- **Docker (optional)** — a `docker compose` dev stack (PHP 8.3 + Apache + MariaDB), no local PHP needed.
 
 ## Requirements
 
 - PHP 8.2 or higher
 - Composer
 - PDO with `pdo_mysql` (MySQL/MariaDB) — SQLite is only used by the test suite
+- *Or*, instead of the above: Docker + Docker Compose (see [*Running with Docker*](#running-with-docker-optional))
 
 ## Installation
 
 ```bash
-git clone <your-fork-or-this-repo> my-project
+composer create-project hstanleycrow/corvagia my-project
 cd my-project
-composer install
 cp .env.example .env
 ```
+
+> Contributing to the skeleton itself? Clone the repo and run `composer install` instead.
 
 Edit `.env` (database credentials, and a `JWT_SECRET` of **at least 32 bytes**),
 create the schema, and serve the `public/` directory:
@@ -59,6 +60,22 @@ You don't need git to start a project from the skeleton — just copy the folder
 Everything else (code, routes, views, config) is shared skeleton and needs no
 per-project edits.
 
+## Running with Docker (optional)
+
+Prefer containers? With Docker and Docker Compose installed, from the project root:
+
+```bash
+docker compose up -d --build                          # PHP 8.3 + Apache + MariaDB
+docker compose exec web php app/Database/migrate.php  # create the tables
+docker compose exec web php app/Database/seed.php     # default admin (admin / admin1234)
+```
+
+Open `http://localhost:8000/` and log in with `admin` / `admin1234`.
+
+- The container reads `docker/.env.docker` (mounted as `.env`), so your local `.env` is left untouched. Change its dev secrets before any real use.
+- MariaDB is published on host port **3307** (container `3306`) to avoid clashing with a local MySQL/XAMPP on 3306.
+- Stop with `docker compose down` (add `-v` to also drop the database volume).
+
 ## Further docs
 
 - [`AI_USAGE.md`](AI_USAGE.md) — technical spec for an AI assistant, including the admin datatable CRUD (definitions, buttons, AJAX handler), flash messages, and the full exception mapping.
@@ -69,36 +86,43 @@ per-project edits.
 ```
 public/
   index.php              # front controller (entry point)
+  datatable_handler.php  # standalone datatable AJAX endpoint
   .htaccess              # rewrites everything to index.php; passes Authorization header
 app/
   Core/
-    Initialize.php       # bootstrap (session, env, config, routes)
+    Initialize.php       # bootstrap (session, env, config, CORS, routes)
     Route.php            # routing facade over AltoRouter
     Database.php         # lazy, shared EasyPHPDBCore connection
     Template.php         # Plates renderer
+    Csrf.php             # CSRF token helper (login form)
     MiddlewareRunner.php
     Auth/                # JwtService, RefreshTokenService
-    Http/                # ApiResponse, ExceptionHandler
+    Http/                # ApiResponse, ExceptionHandler, Cors
     Config/EnvValidator.php
     Exceptions/          # typed router/config/resource exceptions
     Logger/LoggerFactory.php
   Controllers/
     Controller.php       # base for view controllers
+    CrudController.php    # builds the admin datatable
     HomeController.php
     Auth/LoginController.php
-    Admin/DashboardController.php
+    Admin/               # DashboardController, Users/ (reference CRUD)
     Api/                 # ApiController, UsersController, AuthController
+  Components/            # Buttons/, Dropdowns/ (reusable UI components)
+  DatatablesDefinitions/ # User (datatable column + button definitions)
   Middlewares/           # Auth, Admin, ApiAuth
   Models/                # User, RefreshToken (extend EasyPHPDBCore\Model)
   Resources/             # UserResource (typed output DTO)
   Database/
     migrate.php          # migration runner CLI
+    seed.php             # default admin seeder
     Migrator.php
     Migrations/schema.php
     Factories/UserFactory.php
 config/                  # App.php, Debug.php
+docker/                  # Dockerfile, entrypoint, .env.docker (optional Docker stack)
 helpers/                 # helpers.php, debug.php (auto-loaded functions)
-resources/views/         # Plates templates
+resources/views/         # Plates templates (admin/, Layouts/, auth/)
 routes/                  # web.php, admin.php, api.php
 tests/                   # PHPUnit suite
 ```
@@ -138,7 +162,9 @@ any class with `handle(): bool` (return `false` to stop the chain) and
 ## Using EasyPHPDBCore from a controller
 
 A model is a subclass of `hstanleycrow\EasyPHPDBCore\Model` that only sets its
-table. Get the shared connection from `App\Core\Database::connection()`.
+table. Inside a controller get the shared connection with `$this->db()`;
+elsewhere use `App\Core\Database::connection()`. Route params are cast to the
+declared type, so type `int $id` directly.
 
 ```php
 namespace Models;
@@ -155,14 +181,13 @@ class Product extends Model
 namespace App\Controllers;
 
 use Models\Product;
-use App\Core\Database;
 use App\Core\Template;
 
 class ProductController extends Controller
 {
-    public function show(string $id): void
+    public function show(int $id): void
     {
-        $product = (new Product(Database::connection()))->getById((int) $id);
+        $product = (new Product($this->db()))->getById($id);
         Template::render('product', ['product' => $product]);
     }
 }
@@ -215,17 +240,16 @@ exceptions become a consistent JSON error.
 namespace App\Controllers\Api;
 
 use Models\Product;
-use App\Core\Database;
 use App\Core\Http\ApiResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Core\Exceptions\ResourceNotFoundException;
 
 final class ProductsController extends ApiController
 {
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         return $this->handle(function () use ($id): JsonResponse {
-            $product = (new Product(Database::connection()))->getById((int) $id);
+            $product = (new Product($this->db()))->getById($id);
             if ($product === null) {
                 throw new ResourceNotFoundException("Product {$id} not found.");
             }
@@ -238,7 +262,7 @@ final class ProductsController extends ApiController
         return $this->handle(function (): JsonResponse {
             $data = $this->input();                       // JSON body as an array
             $this->validate($data, ['name' => 'required']); // 422 on failure
-            $id = (new Product(Database::connection()))->create([
+            $id = (new Product($this->db()))->create([
                 'name' => (string) $data['name'],
             ])->lastInsertId();
             return ApiResponse::success(['id' => $id], 201);
@@ -279,6 +303,18 @@ POST /api/auth/refresh/   { "refresh_token": "..." }   # rotates the pair
 POST /api/auth/logout/    { "refresh_token": "..." }   # revokes it
 GET  /api/users/?page=1&per_page=25   (Authorization: Bearer <token>)
 ```
+
+### CORS
+
+Browser clients on another origin are blocked unless you allow the origin in `.env`:
+
+```
+CORS_ALLOWED_ORIGINS = "http://localhost:3000"   # comma separated, or * for any
+```
+
+Empty (the default) means no cross-origin access. The API answers the `OPTIONS`
+preflight and echoes the headers on `/api/` responses. Full contract in
+[`API.md`](API.md).
 
 ## Migrations
 

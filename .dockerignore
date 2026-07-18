@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+docker/.env.docker
+vendor
+node_modules
+logs/*.log
+.phpunit.cache
+phpunit.xml
+tests
+prepros.config
+*.md

@@ -1,0 +1,48 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: development
+    container_name: corvagia-web
+    volumes:
+      - .:/var/www/html
+      # Container-specific env (points the app at the `db` service). Keeps your
+      # local .env — e.g. an XAMPP setup on 127.0.0.1 — untouched.
+      - ./docker/.env.docker:/var/www/html/.env
+    ports:
+      - "8000:80"
+    extra_hosts:
+      # Lets Xdebug reach the host IDE on Linux hosts (already works on Desktop).
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:11.4
+    container_name: corvagia-db
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=123456
+      - MARIADB_DATABASE=corvagia_dev
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306" # host 3307 -> container 3306 (keeps local MySQL/XAMPP on 3306)
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
