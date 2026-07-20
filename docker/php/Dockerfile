@@ -4,7 +4,7 @@ FROM php:8.3-apache AS base
 # not bundled in the official image); pdo_mysql for MariaDB/MySQL.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git unzip libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring \
+    && docker-php-ext-install pdo pdo_mysql mbstring opcache \
     && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 
@@ -28,6 +28,15 @@ CMD ["apache2-foreground"]
 # ----- Production: self-contained image with vendor baked in -----
 FROM base AS production
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY composer.json composer.lock /var/www/html/
+RUN --mount=type=cache,target=/root/.composer/cache \
+    composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --no-interaction \
+    --prefer-dist
 COPY . /var/www/html
-RUN composer install --no-dev --optimize-autoloader --no-interaction \
+RUN composer dump-autoload --optimize --no-dev \
     && chown -R www-data:www-data /var/www/html
