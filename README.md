@@ -62,7 +62,17 @@ per-project edits.
 
 ## Running with Docker (optional)
 
-Prefer containers? With Docker and Docker Compose installed, from the project root:
+Prefer containers? With Docker and Docker Compose installed, first point `.env` at
+the `db` service:
+
+```bash
+cp .env.example .env
+```
+
+In `.env` set `DATABASE_HOST=db`, `DATABASE_PORT=3306`, `DATABASE_USERNAME=root`, a
+`DATABASE_NAME`, and a **non-empty** `DATABASE_PASSWORD` (MariaDB needs a root
+password, and the container provisions only the `root` user). Then, from the
+project root:
 
 ```bash
 docker compose up -d --build                          # PHP 8.3 + Apache + MariaDB
@@ -72,8 +82,8 @@ docker compose exec web php app/Database/seed.php     # default admin (admin / a
 
 Open `http://localhost:8000/` and log in with `admin` / `admin1234`.
 
-- The container reads `docker/.env.docker` (mounted as `.env`), so your local `.env` is left untouched. Change its dev secrets before any real use.
-- MariaDB is published on host port **3307** (container `3306`) to avoid clashing with a local MySQL/XAMPP on 3306.
+- **`.env` is the single source of config.** Compose creates the container's database from `DATABASE_NAME`/`DATABASE_PASSWORD`, and the app connects to those same values — nothing to keep in sync.
+- MariaDB is published on host port **3307** (container `3306`) so it doesn't clash with a local MySQL/XAMPP on 3306.
 - Stop with `docker compose down` (add `-v` to also drop the database volume).
 
 ## Further docs

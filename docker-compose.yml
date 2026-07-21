@@ -4,12 +4,8 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
       target: development
-    container_name: corvagia-web
     volumes:
       - .:/var/www/html
-      # Container-specific env (points the app at the `db` service). Keeps your
-      # local .env — e.g. an XAMPP setup on 127.0.0.1 — untouched.
-      - ./docker/.env.docker:/var/www/html/.env
     ports:
       - "8000:80"
     extra_hosts:
@@ -23,11 +19,12 @@ services:
 
   db:
     image: mariadb:11.4
-    container_name: corvagia-db
     restart: always
     environment:
-      - MARIADB_ROOT_PASSWORD=123456
-      - MARIADB_DATABASE=corvagia_dev
+      # Single source of truth: read from the project .env. The app connects to
+      # the same DATABASE_NAME/DATABASE_PASSWORD, so there is nothing to keep in sync.
+      - MARIADB_ROOT_PASSWORD=${DATABASE_PASSWORD}
+      - MARIADB_DATABASE=${DATABASE_NAME}
     volumes:
       - db_data:/var/lib/mysql
     ports:

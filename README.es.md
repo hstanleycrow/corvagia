@@ -62,7 +62,17 @@ necesita ediciones por proyecto.
 
 ## Levantar con Docker (opcional)
 
-¿Prefieres contenedores? Con Docker y Docker Compose instalados, desde la raíz del proyecto:
+¿Prefieres contenedores? Con Docker y Docker Compose instalados, primero apunta el
+`.env` al servicio `db`:
+
+```bash
+cp .env.example .env
+```
+
+En `.env` poné `DATABASE_HOST=db`, `DATABASE_PORT=3306`, `DATABASE_USERNAME=root`, un
+`DATABASE_NAME`, y un `DATABASE_PASSWORD` **no vacío** (MariaDB necesita password de
+root, y el contenedor solo provisiona el usuario `root`). Luego, desde la raíz del
+proyecto:
 
 ```bash
 docker compose up -d --build                          # PHP 8.3 + Apache + MariaDB
@@ -72,7 +82,7 @@ docker compose exec web php app/Database/seed.php     # admin por defecto (admin
 
 Abre `http://localhost:8000/` e ingresa con `admin` / `admin1234`.
 
-- El contenedor lee `docker/.env.docker` (montado como `.env`), así que tu `.env` local queda intacto. Cambia sus secretos de dev antes de cualquier uso real.
+- **El `.env` es la única fuente de config.** Compose crea la base del contenedor desde `DATABASE_NAME`/`DATABASE_PASSWORD`, y la app se conecta a esos mismos valores — nada que mantener sincronizado.
 - MariaDB se publica en el puerto **3307** del host (contenedor `3306`) para no chocar con un MySQL/XAMPP local en 3306.
 - Detén con `docker compose down` (agrega `-v` para borrar también el volumen de la base de datos).
 
