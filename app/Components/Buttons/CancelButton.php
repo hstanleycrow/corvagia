@@ -15,9 +15,9 @@ use hstanleycrow\EasyPHPDatatableCRUD\Buttons\LinkClient;
  */
 class CancelButton extends BaseLink
 {
-    public function __construct(string $href)
+    public function __construct(string $href, ?string $label = null)
     {
-        $content = (new Icon('fa-solid fa-xmark', 'Cancelar'))->render();
+        $content = (new Icon('fa-solid fa-xmark', $label ?: 'Cancel'))->render();
         parent::__construct(new LinkClient($href, $content));
         $this->addClass('btn btn-danger');
     }

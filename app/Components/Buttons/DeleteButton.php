@@ -18,9 +18,9 @@ use hstanleycrow\EasyPHPDatatableCRUD\Buttons\LinkClient;
  */
 class DeleteButton extends BaseLink
 {
-    public function __construct(string $href)
+    public function __construct(string $href, ?string $label = null)
     {
-        $content = (new Icon('fa-solid fa-trash', 'Delete'))->render();
+        $content = (new Icon('fa-solid fa-trash', $label ?: 'Delete'))->render();
         parent::__construct(new LinkClient($href, $content));
         $this->addClass('btn btn-danger btn-sm');
     }

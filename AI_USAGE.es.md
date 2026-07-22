@@ -84,7 +84,10 @@ Propiedades clave:
 `getColumns()` retorna definiciones de columna (`view_name`, `db_name`, `field`,
 `format`). `getButtons()` retorna los botones de acción por fila; cada entrada
 define `view_name` (el header de la columna, requerido), `path` (el segmento de URL,
-p. ej. `editar`/`borrar`) y `buttonClass` (un componente de botón reutilizable).
+p. ej. `editar`/`borrar`), `buttonText` (la etiqueta visible) y `buttonClass` (un
+componente de botón reutilizable). `buttonText` es la forma de localizar un botón:
+se le pasa al componente, que usa su default en inglés solo si omites la clave. No
+edites el componente para cambiar el texto de una sola tabla.
 `getJoinQuery()` retorna
 `FROM \`{$this->dbTable}\` AS \`a\``; `getExtraCondition()` retorna un `WHERE`
 opcional.
@@ -109,8 +112,8 @@ class User
     public function getButtons(): array
     {
         return [
-            ['button_id' => 'edit',   'view_name' => 'Editar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'editar', 'buttonClass' => \App\Components\Buttons\EditButton::class],
-            ['button_id' => 'delete', 'view_name' => 'Borrar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'borrar', 'buttonClass' => \App\Components\Buttons\DeleteButton::class],
+            ['button_id' => 'edit',   'view_name' => 'Editar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'editar', 'buttonText' => 'Editar', 'buttonClass' => \App\Components\Buttons\EditButton::class],
+            ['button_id' => 'delete', 'view_name' => 'Borrar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'borrar', 'buttonText' => 'Borrar', 'buttonClass' => \App\Components\Buttons\DeleteButton::class],
         ];
     }
 
@@ -129,8 +132,16 @@ sentencias separadas:
 $datatable = new DatatableUIBuilder('user', []); // ('user' resuelve DT_DEFINITIONS_NAMESPACE\User)
 $datatable->setAddButtonClass(\App\Components\Buttons\AddButton::class); // botón de crear a nivel tabla
 $datatable->setAjaxUrl('/datatable_handler.php');                        // de dónde el grid trae las filas
+$datatable->setDefaultOrder(1, 'desc');                                  // orden inicial (opcional)
 // pasa $datatable a la vista; llama a ->autoLoadDatatableJS() en la plantilla para emitir el JS
 ```
+
+`setDefaultOrder(int $column, string $dir = 'asc')` define el orden inicial.
+`$column` es el **índice base 0 de la columna renderizada**, y las columnas de
+botones de `getButtons()` se agregan *después* de las de datos — con 5 columnas de
+datos los índices ordenables son 0-4. Un índice negativo o una dirección distinta
+de `asc`/`desc` lanza `InvalidArgumentException`. Si omites la llamada, DataTables
+aplica su propio default.
 
 ### 3. Handler AJAX — `public/datatable_handler.php`
 
@@ -194,6 +205,10 @@ nunca se ensamblan inline en la plantilla. Dos componentes:
       return $this->query('SELECT id, name FROM categories ORDER BY name ASC')->getRecords();
   }
   ```
+  **Las claves deben llamarse literalmente `id` y `name`.** `DBDropdown::cleanOptions()`
+  solo lee esas dos claves, así que una tabla con columnas distintas debe aliasarlas
+  en el query — `SELECT category_id AS id, description AS name FROM ...`. Sin los
+  alias el dropdown renderiza opciones vacías.
 
 El molde Users (`UsersCreateController`/`UsersUpdateController`) muestra el patrón
 ENUM con un helper `buildEnumDropdown()`.
@@ -289,6 +304,14 @@ final class ProductsController extends ApiController
 
 Agrega la tabla `products` a `app/Database/Migrations/schema.php` y corre
 `php app/Database/migrate.php`.
+
+## Complementos opcionales
+
+El skeleton no incluye generación de reportes. Si un proyecto necesita salida en
+PDF o planilla, agrega `hstanleycrow/easyphpreports` con `composer require` y sigue
+el `AI_USAGE.md` de ese paquete — no escribas generación de PDF a mano, ni asumas
+que sus clases existen hasta haberlo instalado. La imagen Docker incluida ya trae
+las extensiones `gd` y `zip` que necesita.
 
 ## Errores comunes a evitar
 

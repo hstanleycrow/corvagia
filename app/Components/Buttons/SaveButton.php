@@ -13,7 +13,7 @@ use hstanleycrow\EasyPHPWebComponents\Button;
  */
 class SaveButton
 {
-    public function __construct(private string $text = 'Guardar')
+    public function __construct(private string $text = 'Save')
     {
     }
 

@@ -80,8 +80,11 @@ A plain class resolved by name through `DT_DEFINITIONS_NAMESPACE`. Key propertie
 
 `getColumns()` returns column defs (`view_name`, `db_name`, `field`, `format`).
 `getButtons()` returns per-row action buttons; each entry sets `view_name` (the
-column header, required), `path` (the URL segment, e.g. `editar`/`borrar`) and
-`buttonClass` (a reusable button component).
+column header, required), `path` (the URL segment, e.g. `editar`/`borrar`),
+`buttonText` (the visible label) and `buttonClass` (a reusable button component).
+`buttonText` is how you localise a button: it is passed to the button component,
+which uses its own English default only when the key is omitted. Never edit the
+component to change wording for one table.
 `getJoinQuery()` returns `FROM \`{$this->dbTable}\` AS \`a\``; `getExtraCondition()`
 returns an optional `WHERE`.
 
@@ -105,8 +108,8 @@ class User
     public function getButtons(): array
     {
         return [
-            ['button_id' => 'edit',   'view_name' => 'Editar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'editar', 'buttonClass' => \App\Components\Buttons\EditButton::class],
-            ['button_id' => 'delete', 'view_name' => 'Borrar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'borrar', 'buttonClass' => \App\Components\Buttons\DeleteButton::class],
+            ['button_id' => 'edit',   'view_name' => 'Editar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'editar', 'buttonText' => 'Editar', 'buttonClass' => \App\Components\Buttons\EditButton::class],
+            ['button_id' => 'delete', 'view_name' => 'Borrar', 'db_name' => '`a`.`id`', 'field' => 'id', 'path' => 'borrar', 'buttonText' => 'Borrar', 'buttonClass' => \App\Components\Buttons\DeleteButton::class],
         ];
     }
 
@@ -125,8 +128,16 @@ statements:
 $datatable = new DatatableUIBuilder('user', []); // ('user' resolves DT_DEFINITIONS_NAMESPACE\User)
 $datatable->setAddButtonClass(\App\Components\Buttons\AddButton::class); // table-level create button
 $datatable->setAjaxUrl('/datatable_handler.php');                        // where the grid fetches rows
+$datatable->setDefaultOrder(1, 'desc');                                  // optional initial sort
 // pass $datatable to the view; call ->autoLoadDatatableJS() in the template to emit the JS
 ```
+
+`setDefaultOrder(int $column, string $dir = 'asc')` sets the initial sort.
+`$column` is the **0-based index of the rendered column**, and the button columns
+from `getButtons()` are appended *after* the data columns — so with 5 data columns
+the sortable indices are 0-4. A negative index or a direction other than
+`asc`/`desc` throws `InvalidArgumentException`. Omit the call and DataTables
+applies its own default.
 
 ### 3. AJAX handler — `public/datatable_handler.php`
 
@@ -190,6 +201,10 @@ never assembled inline in the template. Two components:
       return $this->query('SELECT id, name FROM categories ORDER BY name ASC')->getRecords();
   }
   ```
+  **The keys must literally be `id` and `name`.** `DBDropdown::cleanOptions()`
+  reads those two keys only, so a table whose columns are named differently must
+  alias them in the query — `SELECT category_id AS id, description AS name FROM ...`.
+  Without the aliases the dropdown renders empty options.
 
 The Users molde (`UsersCreateController`/`UsersUpdateController`) shows the ENUM
 pattern via a `buildEnumDropdown()` helper.
@@ -285,6 +300,14 @@ final class ProductsController extends ApiController
 
 Add the `products` table to `app/Database/Migrations/schema.php` and run
 `php app/Database/migrate.php`.
+
+## Optional add-ons
+
+The skeleton does not bundle report generation. If a project needs PDF or
+spreadsheet output, add `hstanleycrow/easyphpreports` with `composer require` and
+follow that package's own `AI_USAGE.md` — do not hand-roll PDF generation, and do
+not assume its classes exist until it is installed. The bundled Docker image
+already ships the `gd` and `zip` extensions it needs.
 
 ## Common mistakes to avoid
 

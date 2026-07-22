@@ -1,10 +1,14 @@
 FROM php:8.3-apache AS base
 
 # System deps + PHP extensions. mbstring is required (helpers use mb_* and it is
-# not bundled in the official image); pdo_mysql for MariaDB/MySQL.
+# not bundled in the official image); pdo_mysql for MariaDB/MySQL. gd and zip are
+# not used by the skeleton itself but are what report libraries (e.g.
+# hstanleycrow/easyphpreports) need for PDF/spreadsheet output.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git unzip libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring opcache \
+    && apt-get install -y --no-install-recommends \
+        git unzip libonig-dev libpng-dev libjpeg-dev libfreetype6-dev libzip-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-freetype \
+    && docker-php-ext-install pdo pdo_mysql mbstring opcache gd zip \
     && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 

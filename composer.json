@@ -30,9 +30,9 @@
         "fakerphp/faker": "^1.24",
         "symfony/http-foundation": "^6.3",
         "hstanleycrow/easyphpdbcore": "^1.0",
-        "hstanleycrow/easyphpdatatablecrud": "^2.0",
-        "hstanleycrow/easyphpdatatables": "^2.0.1",
-        "hstanleycrow/easyphpformvalidator": "^2.0.1",
+        "hstanleycrow/easyphpdatatablecrud": "^2.1.0",
+        "hstanleycrow/easyphpdatatables": "^2.1.0",
+        "hstanleycrow/easyphpformvalidator": "^2.1.0",
         "hstanleycrow/easyphpwebcomponents": "^1.1.0",
         "firebase/php-jwt": "^7.1"
     },

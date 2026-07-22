@@ -120,8 +120,8 @@ if (!empty($record)) {
 
         <div class="clearfix"></div>
         <div id="buttons" class="mt-4">
-            <?= (new SaveButton())->render() ?>
-            <?= (new CancelButton('/admin/users/'))->render() ?>
+            <?= (new SaveButton('Guardar'))->render() ?>
+            <?= (new CancelButton('/admin/users/', 'Cancelar'))->render() ?>
         </div>
 
     </form>

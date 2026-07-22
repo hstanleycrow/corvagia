@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3d4827f15e4c968edc12f5b613bce02",
+    "content-hash": "daca0f6d1de5298053062baf42bfda01",
     "packages": [
         {
             "name": "altorouter/altorouter",
@@ -257,22 +257,22 @@
         },
         {
             "name": "hstanleycrow/easyphpdatatablecrud",
-            "version": "v2.0.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hstanleycrow/EasyPHPDatatableCRUD.git",
-                "reference": "3818a41026d4b6791c2673e23e82298b46cd17ed"
+                "reference": "bd9437e41b4ad21d60d09244d9a0fca313ec9538"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hstanleycrow/EasyPHPDatatableCRUD/zipball/3818a41026d4b6791c2673e23e82298b46cd17ed",
-                "reference": "3818a41026d4b6791c2673e23e82298b46cd17ed",
+                "url": "https://api.github.com/repos/hstanleycrow/EasyPHPDatatableCRUD/zipball/bd9437e41b4ad21d60d09244d9a0fca313ec9538",
+                "reference": "bd9437e41b4ad21d60d09244d9a0fca313ec9538",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-pdo": "*",
-                "hstanleycrow/easyphpdatatables": "^2.0.1",
+                "hstanleycrow/easyphpdatatables": "^2.1.0",
                 "php": "^8.2"
             },
             "require-dev": {
@@ -312,22 +312,22 @@
             ],
             "support": {
                 "issues": "https://github.com/hstanleycrow/EasyPHPDatatableCRUD/issues",
-                "source": "https://github.com/hstanleycrow/EasyPHPDatatableCRUD/tree/v2.0.0"
+                "source": "https://github.com/hstanleycrow/EasyPHPDatatableCRUD/tree/v2.1.0"
             },
-            "time": "2026-07-10T20:00:48+00:00"
+            "time": "2026-07-22T15:17:34+00:00"
         },
         {
             "name": "hstanleycrow/easyphpdatatables",
-            "version": "v2.0.2",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hstanleycrow/EasyPHPDatatables.git",
-                "reference": "90392444831832943a6b46412518cf679ee6b19f"
+                "reference": "ca4943349f078efa7ea98937822972240e8fbf5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hstanleycrow/EasyPHPDatatables/zipball/90392444831832943a6b46412518cf679ee6b19f",
-                "reference": "90392444831832943a6b46412518cf679ee6b19f",
+                "url": "https://api.github.com/repos/hstanleycrow/EasyPHPDatatables/zipball/ca4943349f078efa7ea98937822972240e8fbf5e",
+                "reference": "ca4943349f078efa7ea98937822972240e8fbf5e",
                 "shasum": ""
             },
             "require": {
@@ -370,9 +370,9 @@
             ],
             "support": {
                 "issues": "https://github.com/hstanleycrow/EasyPHPDatatables/issues",
-                "source": "https://github.com/hstanleycrow/EasyPHPDatatables/tree/v2.0.2"
+                "source": "https://github.com/hstanleycrow/EasyPHPDatatables/tree/v2.1.0"
             },
-            "time": "2026-07-14T20:58:29+00:00"
+            "time": "2026-07-22T03:54:24+00:00"
         },
         {
             "name": "hstanleycrow/easyphpdbcore",
@@ -438,16 +438,16 @@
         },
         {
             "name": "hstanleycrow/easyphpformvalidator",
-            "version": "2.0.1",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hstanleycrow/EasyPHPFormValidator.git",
-                "reference": "02e6e22bca63bdfe00e1c107416087e15467cf22"
+                "reference": "03f23c134f6325f49379323c1ecbfe67dc6c65ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hstanleycrow/EasyPHPFormValidator/zipball/02e6e22bca63bdfe00e1c107416087e15467cf22",
-                "reference": "02e6e22bca63bdfe00e1c107416087e15467cf22",
+                "url": "https://api.github.com/repos/hstanleycrow/EasyPHPFormValidator/zipball/03f23c134f6325f49379323c1ecbfe67dc6c65ad",
+                "reference": "03f23c134f6325f49379323c1ecbfe67dc6c65ad",
                 "shasum": ""
             },
             "require": {
@@ -487,9 +487,9 @@
             ],
             "support": {
                 "issues": "https://github.com/hstanleycrow/EasyPHPFormValidator/issues",
-                "source": "https://github.com/hstanleycrow/EasyPHPFormValidator/tree/v2.0.1"
+                "source": "https://github.com/hstanleycrow/EasyPHPFormValidator/tree/v2.1.0"
             },
-            "time": "2026-07-09T23:24:15+00:00"
+            "time": "2026-07-22T03:38:50+00:00"
         },
         {
             "name": "hstanleycrow/easyphpwebcomponents",

@@ -42,7 +42,10 @@ class Controller
                 }
             }
             $_SESSION['errors'] = $errors;
-            $this->route($this->currentRoute, $data);
+            // Back to the URL the form posted to. Rebuilding it from the route name
+            // would need the route placeholders (e.g. [i:id]) among the POST fields,
+            // which forms rarely match, yielding a broken URL like /user/edit//.
+            redirect($this->request->getPathInfo());
         }
     }
 
