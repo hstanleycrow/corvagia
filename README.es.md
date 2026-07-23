@@ -86,6 +86,15 @@ Abre `http://localhost:8000/` e ingresa con `admin` / `admin1234`.
 - MariaDB se publica en el puerto **3307** del host (contenedor `3306`) para no chocar con un MySQL/XAMPP local en 3306.
 - Detén con `docker compose down` (agrega `-v` para borrar también el volumen de la base de datos).
 
+### Levantar varios proyectos Corvagia a la vez
+
+Cada proyecto es su propia copia del skeleton (ver [*Uso local sin git*](#uso-local-sin-git)),
+así que Compose ya aísla redes y volúmenes por carpeta de proyecto. Lo único que
+choca entre proyectos corriendo al mismo tiempo son los **puertos de host**.
+Poné `APP_PORT`/`DB_PORT` en el `.env` de cada proyecto con valores únicos (por
+ejemplo `8001`/`3308` para un segundo proyecto) antes de correr
+`docker compose up -d --build`.
+
 ## Más documentación
 
 - [`AI_USAGE.es.md`](AI_USAGE.es.md) — especificación técnica para una IA, incluyendo el CRUD admin con datatables (definiciones, botones, handler AJAX), flash messages y el mapeo completo de excepciones.

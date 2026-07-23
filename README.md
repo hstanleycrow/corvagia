@@ -86,6 +86,14 @@ Open `http://localhost:8000/` and log in with `admin` / `admin1234`.
 - MariaDB is published on host port **3307** (container `3306`) so it doesn't clash with a local MySQL/XAMPP on 3306.
 - Stop with `docker compose down` (add `-v` to also drop the database volume).
 
+### Running multiple Corvagia projects at once
+
+Each project is its own copy of the skeleton (see [*Local use without git*](#local-use-without-git)),
+so Compose already isolates networks and volumes per project folder. The only
+thing that collides across projects running at the same time is **host ports**.
+Set `APP_PORT`/`DB_PORT` in each project's `.env` to unique values (e.g.
+`8001`/`3308` for a second project) before running `docker compose up -d --build`.
+
 ## Further docs
 
 - [`AI_USAGE.md`](AI_USAGE.md) — technical spec for an AI assistant, including the admin datatable CRUD (definitions, buttons, AJAX handler), flash messages, and the full exception mapping.
