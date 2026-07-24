@@ -57,10 +57,10 @@ if (!empty($record)) {
                 <input type="text"
                     class="form-control <?= !empty($errors['name']) ? 'is-invalid' : '' ?>"
                     name="name" id="name" autocomplete="off"
-                    value="<?= htmlspecialchars($name) ?>">
+                    value="<?= $this->e($name) ?>">
             </div>
             <?php if (!empty($errors['name'])) : ?>
-                <div class="text-danger small"><?= $errors['name'] ?></div>
+                <div class="text-danger small"><?= $this->e($errors['name']) ?></div>
             <?php endif; ?>
         </div>
 
@@ -71,10 +71,10 @@ if (!empty($record)) {
                 <input type="text"
                     class="form-control <?= !empty($errors['username']) ? 'is-invalid' : '' ?>"
                     name="username" id="username" autocomplete="off"
-                    value="<?= htmlspecialchars($username) ?>">
+                    value="<?= $this->e($username) ?>">
             </div>
             <?php if (!empty($errors['username'])) : ?>
-                <div class="text-danger small"><?= $errors['username'] ?></div>
+                <div class="text-danger small"><?= $this->e($errors['username']) ?></div>
             <?php endif; ?>
         </div>
 
@@ -92,9 +92,24 @@ if (!empty($record)) {
                     name="password" id="password" autocomplete="new-password">
             </div>
             <?php if (!empty($errors['password'])) : ?>
-                <div class="text-danger small"><?= $errors['password'] ?></div>
+                <div class="text-danger small"><?= $this->e($errors['password']) ?></div>
             <?php endif; ?>
         </div>
+
+        <!-- Confirmar contraseña (solo en alta) -->
+        <?php if ($action === 'add') : ?>
+            <div class="mb-3">
+                <label for="password_confirmation" class="form-label">Confirmar contraseña</label>
+                <div class="col-sm-6">
+                    <input type="password"
+                        class="form-control <?= !empty($errors['password_confirmation']) ? 'is-invalid' : '' ?>"
+                        name="password_confirmation" id="password_confirmation" autocomplete="new-password">
+                </div>
+                <?php if (!empty($errors['password_confirmation'])) : ?>
+                    <div class="text-danger small"><?= $this->e($errors['password_confirmation']) ?></div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
         <!-- Activo (ENUM dropdown built in the controller) -->
         <div class="mb-3">
@@ -103,7 +118,7 @@ if (!empty($record)) {
                 <?= $activeDropdown ?>
             </div>
             <?php if (!empty($errors['active'])) : ?>
-                <div class="text-danger small"><?= $errors['active'] ?></div>
+                <div class="text-danger small"><?= $this->e($errors['active']) ?></div>
             <?php endif; ?>
         </div>
 
@@ -114,7 +129,7 @@ if (!empty($record)) {
                 <?= $isAdminDropdown ?>
             </div>
             <?php if (!empty($errors['isAdmin'])) : ?>
-                <div class="text-danger small"><?= $errors['isAdmin'] ?></div>
+                <div class="text-danger small"><?= $this->e($errors['isAdmin']) ?></div>
             <?php endif; ?>
         </div>
 

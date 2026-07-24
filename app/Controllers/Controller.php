@@ -27,11 +27,11 @@ class Controller
         return Database::connection();
     }
 
-    protected function validate(array $rules, array $messages = []): void
+    protected function validate(array $rules, array $messages = [], array $sensitiveFields = []): void
     {
         $data = $this->request->request->all();
 
-        $_SESSION['formData'] = $data;
+        $_SESSION['formData'] = array_diff_key($data, array_flip($sensitiveFields));
         try {
             Validator::validate($data, $rules, $messages);
         } catch (ValidationException $e) {

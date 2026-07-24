@@ -4,3 +4,5 @@ logs/*.*
 .phpunit.cache
 prepros.config
 commit-message.txt
+.claude/
+docs/

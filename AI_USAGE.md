@@ -177,7 +177,9 @@ Ordinary view controllers. `showForm(int $id)` loads the record and renders the
 form; the save action reads the request, validates, writes through a model, sets a
 flash message, and redirects. Row-button routes look like
 `/admin/user/editar/[i:id]/` and `/admin/user/borrar/[i:id]/`, matching the
-definition's `$model` + `path`.
+definition's `$model` + `path`. If `showForm` looks up a record that doesn't
+exist, flash an error and redirect to the list instead of letting a null
+propagate — see `UsersUpdateController::showForm`.
 
 ### 6. Form dropdowns — `app/Components/Dropdowns/`
 
@@ -207,7 +209,10 @@ never assembled inline in the template. Two components:
   Without the aliases the dropdown renders empty options.
 
 The Users molde (`UsersCreateController`/`UsersUpdateController`) shows the ENUM
-pattern via a `buildEnumDropdown()` helper.
+pattern via the shared `App\Components\Dropdowns\EnumDropdownBuilder::build(name,
+options, selected, hasError)` helper — `hasError` (whether that field failed
+validation, e.g. `!empty($_SESSION['errors']['active'])`) is read and passed by
+the controller, not by the builder, which stays free of session/form state.
 
 ## Admin CRUD recipe (step by step)
 
@@ -229,12 +234,12 @@ controllers folder `app/Controllers/Admin/{Plural}/`; list route plural
 1. **Migration** — add a `CREATE TABLE IF NOT EXISTS` entry to `app/Database/Migrations/schema.php`, run `php app/Database/migrate.php`.
 2. **Model** — `Models\{Singular} extends Model` with `protected ?string $table = '{plural}';` (see rule 9-10 for custom bound queries).
 3. **Definition** — `App\DatatablesDefinitions\{Singular}` with `$dbTable`, `$primaryKey`, `$model = '/admin/{singular}'` (absolute), `getColumns()`, `getButtons()`, `getJoinQuery()`, `getExtraCondition()` (see §1).
-4. **Controllers** — `app/Controllers/Admin/{Plural}/` with Index/Create/Update/Delete + FormValidator. Index declares `protected string $DTDefinition = '{singular}';` and builds the grid with `(new CrudController())->generateDatatable($this->DTDefinition)`. Create/Update call `$this->validate($rules, $messages)` **first** (the base controller reads POST and handles errors/redirect — no manual collection), then read fields with `$this->request->get()`, write, flash, `$this->route('admin.{plural}List')`. Build any dropdowns here (§6).
+4. **Controllers** — `app/Controllers/Admin/{Plural}/` with Index/Create/Update/Delete + FormValidator. Index declares `protected string $DTDefinition = '{singular}';` and builds the grid with `(new CrudController())->generateDatatable($this->DTDefinition)`. Create/Update call `$this->validate($rules, $messages, $sensitiveFields)` **first** (the base controller reads POST, stores it in `$_SESSION['formData']` for re-population — minus `$sensitiveFields`, e.g. `password`/`password_confirmation`, which are never persisted there — and handles errors/redirect — no manual collection), then read fields with `$this->request->get()`, write, flash, `$this->route('admin.{plural}List')`. Build any dropdowns here (§6).
 5. **Views** — `resources/views/admin/sections/{Plural}/` with `{Singular}Form.tpl.php` + `{plural}List.tpl.php`, both `$this->layout('Layouts/admin', [...])`. The list renders `$datatable->setTableId('{plural}')->render()`. Never call `FlashMessages::display()` in a view.
 6. **Routes** — six lines in `routes/admin.php`, all `->middleware('auth', 'admin')` (list, create form `agregar`, create, edit form `editar/[i:id]`, edit, delete `borrar/[i:id]`).
 7. **Menu** — in `mainMenuNav.php` add `${plural}URL = Route::getUrlFromName('admin.{plural}List');` and a `<li><a class="dropdown-item" href="<?= ${plural}URL; ?>">{Label}</a></li>` inside the target dropdown.
 
-**Validator gotchas:** `min`/`max` measure string **length** but numeric **value** for real int/float. The `in` rule is not pipe-separated: `required in:a,b`. **An unknown rule name is silently ignored** (the validator only applies rules present in its map, no error is raised) — so a made-up rule like `numeric` validates nothing and never warns. The valid rules are: `required`, `string`, `integer`, `min`, `max`, `in`, `email`, `url`, `phone`, `svphone`, `confirmed`, `decimal`, `decimalNumber`, `greaterThanZero`, `nullable`, `date`, `after`, `afterOrEqual`, `before`, `beforeOrEqual`, `fileExtension`. Use `integer` for whole numbers.
+**Validator gotchas:** `min`/`max` measure string **length** but numeric **value** for real int/float. The `in` rule is not pipe-separated: `required in:a,b`. **An unknown rule name is silently ignored** (the validator only applies rules present in its map, no error is raised) — so a made-up rule like `numeric` validates nothing and never warns. `confirmed` only makes sense where the confirmation field is actually rendered — the Users molde applies it on create (`password_confirmation` is shown) but not on edit (the field isn't in the form); see `UsersFormValidator::getRules`. The valid rules are: `required`, `string`, `integer`, `min`, `max`, `in`, `email`, `url`, `phone`, `svphone`, `confirmed`, `decimal`, `decimalNumber`, `greaterThanZero`, `nullable`, `date`, `after`, `afterOrEqual`, `before`, `beforeOrEqual`, `fileExtension`. Use `integer` for whole numbers.
 
 ## Minimal end-to-end (a REST resource)
 

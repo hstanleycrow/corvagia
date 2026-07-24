@@ -181,7 +181,9 @@ Controladores de vista normales. `showForm(int $id)` carga el registro y
 renderiza el formulario; la acción de guardar lee la request, valida, escribe a
 través de un modelo, pone un flash message y redirige. Las rutas de los botones
 de fila se ven como `/admin/user/editar/[i:id]/` y `/admin/user/borrar/[i:id]/`,
-coincidiendo con el `$model` + `path` de la definición.
+coincidiendo con el `$model` + `path` de la definición. Si `showForm` busca un
+registro que no existe, pone un flash de error y redirige al listado en vez de
+dejar que un null se propague — ver `UsersUpdateController::showForm`.
 
 ### 6. Dropdowns de formulario — `app/Components/Dropdowns/`
 
@@ -211,7 +213,10 @@ nunca se ensamblan inline en la plantilla. Dos componentes:
   alias el dropdown renderiza opciones vacías.
 
 El molde Users (`UsersCreateController`/`UsersUpdateController`) muestra el patrón
-ENUM con un helper `buildEnumDropdown()`.
+ENUM con el helper compartido `App\Components\Dropdowns\EnumDropdownBuilder::build(name,
+options, selected, hasError)` — `hasError` (si ese campo falló la validación, p. ej.
+`!empty($_SESSION['errors']['active'])`) lo lee y pasa el controller, no el builder,
+que se mantiene libre de estado de sesión/formulario.
 
 ## Recetario de CRUD admin (paso a paso)
 
@@ -233,12 +238,12 @@ carpeta de controladores `app/Controllers/Admin/{Plural}/`; ruta de listado plur
 1. **Migración** — agrega una entrada `CREATE TABLE IF NOT EXISTS` a `app/Database/Migrations/schema.php`, corre `php app/Database/migrate.php`.
 2. **Modelo** — `Models\{Singular} extends Model` con `protected ?string $table = '{plural}';` (ver reglas 9-10 para queries propios vinculados).
 3. **Definición** — `App\DatatablesDefinitions\{Singular}` con `$dbTable`, `$primaryKey`, `$model = '/admin/{singular}'` (absoluto), `getColumns()`, `getButtons()`, `getJoinQuery()`, `getExtraCondition()` (ver §1).
-4. **Controladores** — `app/Controllers/Admin/{Plural}/` con Index/Create/Update/Delete + FormValidator. Index declara `protected string $DTDefinition = '{singular}';` y arma el grid con `(new CrudController())->generateDatatable($this->DTDefinition)`. Create/Update llaman a `$this->validate($rules, $messages)` **primero** (el controlador base lee POST y maneja errores/redirect — sin recolección manual), luego leen los campos con `$this->request->get()`, escriben, flash, `$this->route('admin.{plural}List')`. Los dropdowns se arman aquí (§6).
+4. **Controladores** — `app/Controllers/Admin/{Plural}/` con Index/Create/Update/Delete + FormValidator. Index declara `protected string $DTDefinition = '{singular}';` y arma el grid con `(new CrudController())->generateDatatable($this->DTDefinition)`. Create/Update llaman a `$this->validate($rules, $messages, $sensitiveFields)` **primero** (el controlador base lee POST, lo guarda en `$_SESSION['formData']` para repoblar el form — excepto `$sensitiveFields`, p. ej. `password`/`password_confirmation`, que nunca se persisten ahí — y maneja errores/redirect — sin recolección manual), luego leen los campos con `$this->request->get()`, escriben, flash, `$this->route('admin.{plural}List')`. Los dropdowns se arman aquí (§6).
 5. **Vistas** — `resources/views/admin/sections/{Plural}/` con `{Singular}Form.tpl.php` + `{plural}List.tpl.php`, ambas `$this->layout('Layouts/admin', [...])`. El listado renderiza `$datatable->setTableId('{plural}')->render()`. Nunca llames a `FlashMessages::display()` en una vista.
 6. **Rutas** — seis líneas en `routes/admin.php`, todas `->middleware('auth', 'admin')` (listado, form de crear `agregar`, crear, form de editar `editar/[i:id]`, editar, borrar `borrar/[i:id]`).
 7. **Menú** — en `mainMenuNav.php` agrega `${plural}URL = Route::getUrlFromName('admin.{plural}List');` y un `<li><a class="dropdown-item" href="<?= ${plural}URL; ?>">{Label}</a></li>` dentro del dropdown correspondiente.
 
-**Gotchas del validador:** `min`/`max` miden **longitud** en strings pero **valor** en int/float reales. La regla `in` no se separa con pipe: `required in:a,b`. **Una regla desconocida se ignora en silencio** (el validador solo aplica las reglas presentes en su mapa, no lanza error) — así que una regla inventada como `numeric` no valida nada y nunca avisa. Las reglas válidas son: `required`, `string`, `integer`, `min`, `max`, `in`, `email`, `url`, `phone`, `svphone`, `confirmed`, `decimal`, `decimalNumber`, `greaterThanZero`, `nullable`, `date`, `after`, `afterOrEqual`, `before`, `beforeOrEqual`, `fileExtension`. Usa `integer` para enteros.
+**Gotchas del validador:** `min`/`max` miden **longitud** en strings pero **valor** en int/float reales. La regla `in` no se separa con pipe: `required in:a,b`. **Una regla desconocida se ignora en silencio** (el validador solo aplica las reglas presentes en su mapa, no lanza error) — así que una regla inventada como `numeric` no valida nada y nunca avisa. `confirmed` solo tiene sentido donde el campo de confirmación realmente se renderiza — el molde Users la aplica en alta (`password_confirmation` se muestra) pero no en edición (el campo no está en el form); ver `UsersFormValidator::getRules`. Las reglas válidas son: `required`, `string`, `integer`, `min`, `max`, `in`, `email`, `url`, `phone`, `svphone`, `confirmed`, `decimal`, `decimalNumber`, `greaterThanZero`, `nullable`, `date`, `after`, `afterOrEqual`, `before`, `beforeOrEqual`, `fileExtension`. Usa `integer` para enteros.
 
 ## Mínimo end-to-end (un recurso REST)
 

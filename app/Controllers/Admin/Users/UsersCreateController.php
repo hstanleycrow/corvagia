@@ -8,8 +8,7 @@ use Models\User;
 use App\Core\Template;
 use App\Core\FlashMessages;
 use App\Controllers\Controller;
-use App\Components\Dropdowns\Dropdown;
-use App\Components\Dropdowns\DropdownClient;
+use App\Components\Dropdowns\EnumDropdownBuilder;
 
 class UsersCreateController extends Controller
 {
@@ -27,23 +26,16 @@ class UsersCreateController extends Controller
             'action'                 => 'add',
             'formAction'             => '/admin/user/agregar/',
             'record'                 => [],
-            'activeDropdown'         => $this->buildEnumDropdown('active', ['S' => 'Activo', 'N' => 'Inactivo'], $activeSelected),
-            'isAdminDropdown'        => $this->buildEnumDropdown('isAdmin', ['S' => 'Administrador', 'N' => 'Usuario'], $isAdminSelected),
+            'activeDropdown'         => EnumDropdownBuilder::build('active', ['S' => 'Activo', 'N' => 'Inactivo'], $activeSelected, !empty($_SESSION['errors']['active'])),
+            'isAdminDropdown'        => EnumDropdownBuilder::build('isAdmin', ['S' => 'Administrador', 'N' => 'Usuario'], $isAdminSelected, !empty($_SESSION['errors']['isAdmin'])),
             'useDataTablesResources' => false,
         ]);
-    }
-
-    private function buildEnumDropdown(string $name, array $options, string $selected): string
-    {
-        $class = 'form-select' . (!empty($_SESSION['errors'][$name]) ? ' is-invalid' : '');
-        $client = new DropdownClient($options, $selected);
-        return (new Dropdown($client))->setName($name)->setId($name)->addClass($class)->render();
     }
 
     public function create(): void
     {
         $validator = new UsersFormValidator();
-        $this->validate($validator->getRules(false), $validator->getMessages(false));
+        $this->validate($validator->getRules(false), $validator->getMessages(false), ['password', 'password_confirmation']);
 
         $userModel = new User($this->db());
 

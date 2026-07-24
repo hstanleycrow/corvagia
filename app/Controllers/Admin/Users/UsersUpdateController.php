@@ -8,8 +8,7 @@ use Models\User;
 use App\Core\Template;
 use App\Core\FlashMessages;
 use App\Controllers\Controller;
-use App\Components\Dropdowns\Dropdown;
-use App\Components\Dropdowns\DropdownClient;
+use App\Components\Dropdowns\EnumDropdownBuilder;
 
 class UsersUpdateController extends Controller
 {
@@ -18,8 +17,15 @@ class UsersUpdateController extends Controller
 
     public function showForm(int $id): void
     {
-        $userModel    = new User($this->db());
-        $record       = $userModel->getById($id);
+        $userModel = new User($this->db());
+        $record    = $userModel->getById($id);
+
+        if ($record === null) {
+            FlashMessages::set('danger', 'El usuario solicitado no existe.');
+            $this->route('admin.usersList');
+            return;
+        }
+
         $record['id'] = $id;
 
         unset($_SESSION['formData']);
@@ -30,23 +36,16 @@ class UsersUpdateController extends Controller
             'action'                 => 'edit',
             'formAction'             => "/admin/user/editar/{$id}/",
             'record'                 => $record,
-            'activeDropdown'         => $this->buildEnumDropdown('active', ['S' => 'Activo', 'N' => 'Inactivo'], $record['active'] ?? 'S'),
-            'isAdminDropdown'        => $this->buildEnumDropdown('isAdmin', ['S' => 'Administrador', 'N' => 'Usuario'], $record['isAdmin'] ?? 'N'),
+            'activeDropdown'         => EnumDropdownBuilder::build('active', ['S' => 'Activo', 'N' => 'Inactivo'], $record['active'] ?? 'S', !empty($_SESSION['errors']['active'])),
+            'isAdminDropdown'        => EnumDropdownBuilder::build('isAdmin', ['S' => 'Administrador', 'N' => 'Usuario'], $record['isAdmin'] ?? 'N', !empty($_SESSION['errors']['isAdmin'])),
             'useDataTablesResources' => false,
         ]);
-    }
-
-    private function buildEnumDropdown(string $name, array $options, string $selected): string
-    {
-        $class = 'form-select' . (!empty($_SESSION['errors'][$name]) ? ' is-invalid' : '');
-        $client = new DropdownClient($options, $selected);
-        return (new Dropdown($client))->setName($name)->setId($name)->addClass($class)->render();
     }
 
     public function save(): void
     {
         $validator = new UsersFormValidator();
-        $this->validate($validator->getRules(true), $validator->getMessages(true));
+        $this->validate($validator->getRules(true), $validator->getMessages(true), ['password']);
 
         $id       = (int) $this->request->get('id');
         $password = trim($this->request->get('password') ?? '');
